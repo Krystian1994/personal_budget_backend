@@ -55,58 +55,78 @@
         }
 
         //łączymy się z bazą
-        //dopinamy connect.php
-        require_once "connect.php";
-        //informujemy php że raportujemy nie warningiem, tylko wyjątkiem.
-        mysqli_report(MYSQLI_REPORT_STRICT);
-        //łączymy się z bazą przy użyciu try catch 
-        try{
-            //łączenie z serwerem
-            $connection = new mysqli($host,$db_user,$db_password,$db_name); 
-            //sprawdzamy połączenie
-            if($connection->connect_errno!=0){
-                //rzuć nowym wyjątkiem
-                throw new Exception(mysqli_connect_erno());
-            }else{
-                //erno == 0 połączenie uzyskano
-                
-                //sprawdzamy czy istnieje email
-                $result = $connection->query("SELECT id FROM users WHERE email='$email'");
-                //sprawdzamy czy nie nastąpił błąd w połączeniu podczas zapytania
-                if(!$result) throw new Exception($connection->error);
-                //sprawdzamy czy taki sam email został już zapisany
-                $numOfEmail = $result->num_rows;
-                if($numOfEmail>0){
-                    $validation = false;
-                    $_SESSION['errEmail'] = "Podany email istnieje w bazie. Użyj innego.";
-                }
-
-                //analogicznie sprawdzamy nick czy został już wcześniej użyty
-                $result = $connection->query("SELECT id FROM users WHERE username='$nick'");
-                if(!$result) throw new Exception($connection->error);
-                $numOfNick = $result->num_rows;
-                if($numOfNick>0){
-                    $validation = false;
-                    $_SESSION['errNick'] = "Podane Imię już istnieje.";
-                }
-
-                if($validation == true){
-                    //dane formularza przeszły wszystkie testy, możemy dodać użtkownika do bazy danych.
-                    if($connection->query("INSERT INTO users SET id=NULL, username='$nick', password='$passwordHash', email='$email'")){
-                        $_SESSION['registrationComplete'] = true;
-                        header('Location: login.php');
-                    }else{
-                        throw new Exception($connection->error);
-                    }
-                }
-
-                //zamykamy połączenie
-                $connection->close();
-            }
-        }catch(Exception $e){ //catch złap wyjątki
-            echo '<span style="color:red;">Błąd serwera</span>';
-            //echo '<br/>Informacja deweloperska: '.$e;
+        require_once "database.php";
+        
+        //realizujemy zapytanie w 3 krokach zgodnie z biblioteką PDO
+        //sprawdzamy czy istnieje email
+        $result = $connection->prepare('SELECT id FROM users WHERE email = :email');
+        $result -> bindValue(':email',$email, PDO::PARAM_STR);
+        $result -> execute();
+        //sprawdzamy liczbę wyników dla email (czy istnieje w bazie)
+        $numOfEmail = $result -> rowCount();
+        if($numOfEmail>0){
+            $validation = false;
+            $_SESSION['errEmail'] = "Podany email istnieje w bazie. Użyj innego.";
         }
+
+        //analogicznie sprawdzamy istnienie imienia
+        $result = $connection->prepare('SELECT id FROM users WHERE username = :nick');
+        $result -> bindValue(':nick',$nick,PDO::PARAM_STR);
+        $result -> execute();
+
+        $numOfNick = $result -> rowCount();
+        if($numOfNick>0){
+            $validation = false;
+            $_SESSION['errNick'] = "Podane Imię już istnieje.";
+        }
+
+        if($validation == true){
+            //dane formularza przeszły wszystkie testy, możemy dodać użtkownika do bazy danych.
+            $query = $connection -> prepare('INSERT INTO users SET username = :nick , password = :passwordHash , email = :email');
+            $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
+            $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
+            $query -> bindValue(':email',$email,PDO::PARAM_STR);
+            $query -> execute();
+            
+            //pobieram id zarejestrowanego użytkownika
+            $userQuery = $connection -> prepare('SELECT id FROM users WHERE username = :nick AND password = :passwordHash');
+            $userQuery -> bindValue(':nick',$nick,PDO::PARAM_STR);
+            $userQuery-> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
+            $userQuery -> execute();
+            $user = $userQuery -> fetch();
+            $userId = $user['id'];
+            
+            //dodajemy kategorie wydatków
+            $connection -> exec('INSERT INTO expenses_category_assigned_to_users(name) SELECT name FROM expenses_category_default');
+
+            $query = $connection -> prepare('UPDATE expenses_category_assigned_to_users SET user_id = :userId ORDER BY id DESC LIMIT 16');
+            $query -> bindValue(':userId',$userId,PDO::PARAM_INT);
+            $query -> execute();
+
+            // $query = $connection -> prepare('INSERT INTO expenses_category_assigned_to_users(user_id,name) SELECT users.id, expenses_category_default.name FROM users, expenses_category_default WHERE users.username = :nick AND users.password = :passwordHash');
+            // $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
+            // $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
+            // $query -> execute();
+
+            //dodajemy kategorie przychodów
+            $query = $connection -> prepare('INSERT INTO incomes_category_assigned_to_users(user_id,name) SELECT users.id, incomes_category_default.name FROM users, incomes_category_default WHERE users.username = :nick AND users.password = :passwordHash');
+            $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
+            $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
+            $query -> execute();
+
+            //dodajemy kategorie płatności
+            $query = $connection -> prepare('INSERT INTO payment_methods_assigned_to_users(user_id,name) SELECT users.id, payment_methods_default.name FROM users, payment_methods_default WHERE users.username = :nick AND users.password = :passwordHash');
+            $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
+            $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
+            $query -> execute();
+            // if(!$connection->query("INSERT INTO payment_methods_assigned_to_users(user_id,name) SELECT users.id, payment_methods_default.name FROM users, payment_methods_default WHERE users.username = '$nick' AND users.password = '$passwordHash'")){
+            //     throw new Exception($connection->error);
+            // }
+
+            //dodanie użytkownika wraz z kategoriami przebiegło pomyślnie, przekierowanie do logowania
+            $_SESSION['registrationComplete'] = true;
+            header('Location: login.php');
+        }     
     }
 ?>
 
