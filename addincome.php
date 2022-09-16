@@ -1,3 +1,11 @@
+<?php
+    session_start();
+    if(!isset($_SESSION['idUser'])){
+        header('Location: index.php');
+        exit();
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +13,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Expense Budget</title>
+    <title>Add Income Budget</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
@@ -29,7 +37,7 @@
         <article>
             <div>
                 <blockquote class="blockquote d-block w-100">
-                    <h2 class="text-center p-5">Wprowadź dane wydatku:</h2>
+                    <h2 class="text-center p-5">Wprowadź dane przychodu:</h2>
                 </blockquote>
                 <div class="row">
                     <nav class="col-3 border-right pr-0">
@@ -42,7 +50,7 @@
                                     <path fill-rule="evenodd"
                                         d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z" />
                                 </svg> Strona Główna</a>
-                            <a class="btn btn-primary bt-sm m-3" href="addincome.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3 active" href="addincome.html" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cash-coin" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -53,7 +61,7 @@
                                         d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
                                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
                                 </svg> Dodaj Przychóda</a>
-                            <a class="btn btn-primary bt-sm m-3 active" href="addexpense.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="addexpense.html" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cart4" viewBox="0 0 16 16">
                                     <path
@@ -80,10 +88,9 @@
                                 </svg>Wyloguj się</a>
                         </div>
                         <div>
-                            <p id="logIn" class="text-success mt-5 p-3">Zalogowany: Użytkownik</p>
+                            <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-
                     <div class="col-9 text-center">
                         <form action="#">
                             <div class="d-flex align-items-center flex-column  ">
@@ -98,8 +105,7 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input type="number" min="0.01" step="0.01" class="form-control"
-                                        placeholder="kwota">
+                                    <input type="number" min="0" step="0.01" class="form-control" placeholder="kwota">
                                 </div>
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <div class=" input-group-prepend">
@@ -115,32 +121,11 @@
                                     <input id="actualDate" type="date" class="form-control">
                                 </div>
                                 <div class="input-group col-md-4 col-7 m-1">
-                                    <select class="form-control" name="pay">
-                                        <option value="" disabled selected hidden>Wybierz sposób płatności</option>
-                                        <option value="GT">Gotówka</option>
-                                        <option value="KD">Karta debetowa</option>
-                                        <option value="KK">Karta kredytowa</option>
-                                    </select>
-                                </div>
-                                <div class="input-group col-md-4 col-7 m-1">
-                                    <select class="form-control" name="category">
-                                        <option value="" disabled selected hidden>Wybierz kategorię wydatku</option>
-                                        <option value="JE">Jedzenie</option>
-                                        <option value="MI">Mieszkanie</option>
-                                        <option value="TR">Transport</option>
-                                        <option value="TL">Telekomunikacja</option>
-                                        <option value="OZ">Opieka Zdrowotna</option>
-                                        <option value="UB">Ubranie</option>
-                                        <option value="HG">Higiena</option>
-                                        <option value="DZ">Dzieci</option>
-                                        <option value="RO">Rozrywka</option>
-                                        <option value="WY">Wycieczka</option>
-                                        <option value="SZ">Szkolenia</option>
-                                        <option value="KS">Książki</option>
-                                        <option value="OS">Oszczędności</option>
-                                        <option value="EM">Emerytura</option>
-                                        <option value="DŁ">Dług</option>
-                                        <option value="DA">Darowizna</option>
+                                    <select class="form-control" name="income">
+                                        <option value="" disabled selected hidden>Wybierz rodzaj przychodu</option>
+                                        <option value="WY">Wynagrodzenie</option>
+                                        <option value="OB">Odsetki Bankowe</option>
+                                        <option value="SA">Sprzedaż na Allegro</option>
                                         <option value="IN">Inne</option>
                                     </select>
                                 </div>
@@ -152,7 +137,7 @@
                             <div class="d-flex justify-content-center">
                                 <div class="d-flex justify-content-center col-8 m-5">
                                     <a class="btn btn-secondary col-2 m-2 p-1" href="#" role="button">Anuluj</a>
-                                    <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Dodaj Wydatek">
+                                    <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Dodaj Przychód">
                                 </div>
                             </div>
                         </form>

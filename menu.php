@@ -1,3 +1,11 @@
+<?php
+    session_start();
+    if(!isset($_SESSION['idUser'])){
+        header('Location: index.php');
+        exit();
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +13,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Income Budget</title>
+    <title>Main Menu Personal Budget</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
@@ -29,12 +37,12 @@
         <article>
             <div>
                 <blockquote class="blockquote d-block w-100">
-                    <h2 class="text-center p-5">Wprowadź dane przychodu:</h2>
+                    <h2 class="text-center p-5">Witaj <?php if(isset($_SESSION['idUser'])){ echo $_SESSION['userName'];} ?> w Menu Głównym</h2>
                 </blockquote>
                 <div class="row">
                     <nav class="col-3 border-right pr-0">
                         <div class="nav flex-column">
-                            <a class="btn btn-primary bt-sm m-3" href="menu.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3 active" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-house-fill" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -42,7 +50,7 @@
                                     <path fill-rule="evenodd"
                                         d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z" />
                                 </svg> Strona Główna</a>
-                            <a class="btn btn-primary bt-sm m-3 active" href="addincome.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="addincome.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cash-coin" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -53,13 +61,13 @@
                                         d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
                                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
                                 </svg> Dodaj Przychóda</a>
-                            <a class="btn btn-primary bt-sm m-3" href="addexpense.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="addexpense.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cart4" viewBox="0 0 16 16">
                                     <path
                                         d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" />
                                 </svg> Dodaj Wydatek</a>
-                            <a class="btn btn-primary bt-sm m-3" href="balance.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="balance.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-list-check" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -80,59 +88,11 @@
                                 </svg>Wyloguj się</a>
                         </div>
                         <div>
-                            <p id="logIn" class="text-success mt-5 p-3">Zalogowany: Użytkownik</p>
+                            <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
                     <div class="col-9 text-center">
-                        <form action="#">
-                            <div class="d-flex align-items-center flex-column  ">
-                                <div class="input-group col-md-4 col-7 m-1">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><svg xmlns="http://www.w3.org/2000/svg"
-                                                width="20" height="20" fill="currentColor" class="bi bi-pencil-square"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                <path fill-rule="evenodd"
-                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                            </svg></span>
-                                    </div>
-                                    <input type="number" min="0" step="0.01" class="form-control" placeholder="kwota">
-                                </div>
-                                <div class="input-group col-md-4 col-7 m-1">
-                                    <div class=" input-group-prepend">
-                                        <span class="input-group-text"><svg xmlns="http://www.w3.org/2000/svg"
-                                                width="20" height="20" fill="currentColor" class="bi bi-pencil-square"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                <path fill-rule="evenodd"
-                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                            </svg></span>
-                                    </div>
-                                    <input id="actualDate" type="date" class="form-control">
-                                </div>
-                                <div class="input-group col-md-4 col-7 m-1">
-                                    <select class="form-control" name="income">
-                                        <option value="" disabled selected hidden>Wybierz rodzaj przychodu</option>
-                                        <option value="WY">Wynagrodzenie</option>
-                                        <option value="OB">Odsetki Bankowe</option>
-                                        <option value="SA">Sprzedaż na Allegro</option>
-                                        <option value="IN">Inne</option>
-                                    </select>
-                                </div>
-                                <div class="input-group col-md-4 col-7 m-1">
-                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                                        placeholder="Dodaj komentarz"></textarea>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-center">
-                                <div class="d-flex justify-content-center col-8 m-5">
-                                    <a class="btn btn-secondary col-2 m-2 p-1" href="#" role="button">Anuluj</a>
-                                    <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Dodaj Przychód">
-                                </div>
-                            </div>
-                        </form>
+                        <img src="img/biznesmen.jpg" class="img-fluid" alt="Responsive image">
                     </div>
                 </div>
             </div>
@@ -160,7 +120,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
         integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
         crossorigin="anonymous"></script>
-    <script src="appDate.js"></script>
 </body>
 
 </html>
