@@ -1,6 +1,11 @@
 <?php
     session_start();
 
+    if(isset($_SESSION['idUser'])){
+        header('Location: menu.php');
+    }
+
+
     if(isset($_POST['email'])){
         $email = $_POST['email'];
         $password = $_POST['password'];

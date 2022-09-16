@@ -1,6 +1,10 @@
 <?php
     //każdy dokument chcący korzystać z pojemnika na dane $_SESSION musi posiadać session_start();
     session_start();
+
+    if(isset($_SESSION['idUser'])){
+        header('Location: menu.php');
+    }
     
     //sprawdzamy czy formularz został wysłany, poprzez sprawdzenie ustawienia dowolnej zmiennej z formularza
     if(isset($_POST['nick'])){  

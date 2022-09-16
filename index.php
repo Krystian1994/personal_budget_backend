@@ -1,3 +1,10 @@
+<?php
+    session_start();
+    if(isset($_SESSION['idUser'])){
+        header('Location: menu.php');
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
