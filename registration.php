@@ -98,30 +98,19 @@
             
             //dodajemy kategorie wydatków
             $connection -> exec('INSERT INTO expenses_category_assigned_to_users(name) SELECT name FROM expenses_category_default');
-
             $query = $connection -> prepare('UPDATE expenses_category_assigned_to_users SET user_id = :userId ORDER BY id DESC LIMIT 16');
             $query -> bindValue(':userId',$userId,PDO::PARAM_INT);
             $query -> execute();
 
-            // $query = $connection -> prepare('INSERT INTO expenses_category_assigned_to_users(user_id,name) SELECT users.id, expenses_category_default.name FROM users, expenses_category_default WHERE users.username = :nick AND users.password = :passwordHash');
-            // $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
-            // $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
-            // $query -> execute();
-
-            //dodajemy kategorie przychodów
-            $query = $connection -> prepare('INSERT INTO incomes_category_assigned_to_users(user_id,name) SELECT users.id, incomes_category_default.name FROM users, incomes_category_default WHERE users.username = :nick AND users.password = :passwordHash');
-            $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
-            $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
+            //dodajemy kategorie przychodów  (użyjemy do przychodów i płatności innego sposobu niż w przypadku wydatków)
+            $query = $connection -> prepare('INSERT INTO incomes_category_assigned_to_users(user_id,name) SELECT users.id, incomes_category_default.name FROM users, incomes_category_default WHERE users.id = :userId');
+            $query -> bindValue(':userId',$userId,PDO::PARAM_INT);
             $query -> execute();
 
             //dodajemy kategorie płatności
-            $query = $connection -> prepare('INSERT INTO payment_methods_assigned_to_users(user_id,name) SELECT users.id, payment_methods_default.name FROM users, payment_methods_default WHERE users.username = :nick AND users.password = :passwordHash');
-            $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
-            $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
+            $query = $connection -> prepare('INSERT INTO payment_methods_assigned_to_users(user_id,name) SELECT users.id, payment_methods_default.name FROM users, payment_methods_default WHERE users.id = :userId');
+            $query -> bindValue(':userId',$userId,PDO::PARAM_INT);
             $query -> execute();
-            // if(!$connection->query("INSERT INTO payment_methods_assigned_to_users(user_id,name) SELECT users.id, payment_methods_default.name FROM users, payment_methods_default WHERE users.username = '$nick' AND users.password = '$passwordHash'")){
-            //     throw new Exception($connection->error);
-            // }
 
             //dodanie użytkownika wraz z kategoriami przebiegło pomyślnie, przekierowanie do logowania
             $_SESSION['registrationComplete'] = true;

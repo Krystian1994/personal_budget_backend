@@ -1,5 +1,35 @@
 <?php
     session_start();
+
+    if(isset($_POST['email'])){
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+
+        $email = htmlentities($email,ENT_QUOTES, "UTF-8");
+        $password = htmlentities($password,ENT_QUOTES, "UTF-8");
+
+        require_once "database.php";
+
+        $result = $connection -> prepare('SELECT * FROM users WHERE email = :email');
+        $result -> bindValue(':email',$email,PDO::PARAM_STR);
+        $result -> execute();
+
+        $numOfEmail = $result -> rowCount();
+        if($numOfEmail > 0){
+            $user = $result -> fetch();
+            if(password_verify($password,$user['password']))
+            {   
+                $_SESSION['idUser'] = $user['id'];
+                $_SESSION['userName'] = $user['username'];
+                header('Location: menu.php');
+            }else{
+                $_SESSION['errLogPassword'] = "Podane hasło jest nieprawidłowe.";
+            }
+
+        }else{
+            $_SESSION['errLogEmail'] = "Podany e-mail nie istnieje w bazie.";
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +77,7 @@
                 </blockquote>
             </div>
             <div>
-                <form action="#">
+                <form method="post">
                     <div class="d-flex align-items-center flex-column  ">
                         <div class="input-group col-md-4 col-7 m-1">
                             <div class="input-group-prepend">
@@ -57,7 +87,13 @@
                                             d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
                                     </svg></span>
                             </div>
-                            <input type="email" class="form-control" placeholder="e-mail">
+                            <input type="email" class="form-control" placeholder="e-mail" name="email">
+                            <?php
+                                if(isset($_SESSION['errLogEmail'])){
+                                    echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errLogEmail'].'</div>';
+                                    unset($_SESSION['errLogEmail']);
+                                }
+                            ?>
                         </div>
                         <div class="input-group col-md-4 col-7 m-1">
                             <div class=" input-group-prepend">
@@ -69,7 +105,13 @@
                                         <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
                                     </svg></span>
                             </div>
-                            <input id="password" type="password" class="form-control" placeholder="hasło">
+                            <input id="password" type="password" class="form-control" placeholder="hasło" name="password">
+                            <?php
+                                if(isset($_SESSION['errLogPassword'])){
+                                    echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errLogPassword'].'</div>';
+                                    unset($_SESSION['errLogPassword']);
+                                }
+                            ?>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
