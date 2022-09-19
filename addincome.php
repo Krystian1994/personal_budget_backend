@@ -4,6 +4,37 @@
         header('Location: index.php');
         exit();
     }
+
+    $validation = true;
+
+    if(isset($_POST['amount'])){
+        $amount = $_POST['amount'];
+
+        if($amount <= 0){
+            $validation = false;
+            $_SESSION['errAmountIncome'] = "Wprowadzona kwota przychodu jest nieprawidłowa.";
+        }
+
+        $comment = htmlentities($_POST['comment'],ENT_QUOTES,"UTF-8");
+
+        if(!isset($_POST['date'])){
+            $validation = false;
+            $_SESSION['errDateIncome'] = "Nie podano daty przychodu.";
+        }
+        $date = $_POST['date'];
+
+        if(!isset($_POST['income'])){
+            $validation = false;
+            $_SESSION['errIncome'] = "Nie wybrano kategorii przychodu.";
+        }
+        $income = $_POST['income'];
+        
+        //require_once "database.php";
+
+        // $result = $connection -> prepare('SELECT id FROM incomes_category_assigned_to_users WHERE user_id = :user_id AND name = :name');
+        // $result -> bindValue(':name', $income, PDO::PARAM_STR);
+        // $result -> execute();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +47,7 @@
     <title>Add Income Budget</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
 </head>
 
@@ -92,7 +123,7 @@
                         </div>
                     </nav>
                     <div class="col-9 text-center">
-                        <form action="#">
+                        <form method="post">
                             <div class="d-flex align-items-center flex-column  ">
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <div class="input-group-prepend">
@@ -105,7 +136,13 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input type="number" min="0" step="0.01" class="form-control" placeholder="kwota">
+                                    <input type="number" class="form-control" placeholder="kwota" name="amount">
+                                    <?php 
+                                        if(isset($_SESSION['errAmountIncome'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errAmountIncome'].'</div>';
+                                            unset($_SESSION['errAmountIncome']);
+                                        }
+                                    ?>
                                 </div>
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <div class=" input-group-prepend">
@@ -118,20 +155,32 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input id="actualDate" type="date" class="form-control">
+                                    <input id="actualDate" type="date" class="form-control" name="date">
+                                    <?php 
+                                        if(isset($_SESSION['errDateIncome'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errDateIncome'].'</div>';
+                                            unset($_SESSION['errDateIncome']);
+                                        }
+                                    ?>
                                 </div>
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <select class="form-control" name="income">
                                         <option value="" disabled selected hidden>Wybierz rodzaj przychodu</option>
-                                        <option value="WY">Wynagrodzenie</option>
-                                        <option value="OB">Odsetki Bankowe</option>
-                                        <option value="SA">Sprzedaż na Allegro</option>
-                                        <option value="IN">Inne</option>
+                                        <option value="Salary">Wynagrodzenie</option>
+                                        <option value="Interest">Odsetki Bankowe</option>
+                                        <option value="Allegro">Sprzedaż na Allegro</option>
+                                        <option value="Another">Inne</option>
                                     </select>
                                 </div>
+                                <?php 
+                                    if(isset($_SESSION['errIncome'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errIncome'].'</div>';
+                                        unset($_SESSION['errIncome']);
+                                    }
+                                ?>
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                                        placeholder="Dodaj komentarz"></textarea>
+                                        placeholder="Dodaj komentarz" name="comment"></textarea>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-center">
@@ -168,7 +217,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
         integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
         crossorigin="anonymous"></script>
-    <script src="appDate.js"></script>
+    <script src="js/appDate.js"></script>
 </body>
 
 </html>

@@ -101,8 +101,11 @@
             $userId = $user['id'];
             
             //dodajemy kategorie wydatków
-            $connection -> exec('INSERT INTO expenses_category_assigned_to_users(name) SELECT name FROM expenses_category_default');
-            $query = $connection -> prepare('UPDATE expenses_category_assigned_to_users SET user_id = :userId ORDER BY id DESC LIMIT 16');
+            // $connection -> exec('INSERT INTO expenses_category_assigned_to_users(name) SELECT name FROM expenses_category_default');
+            // $query = $connection -> prepare('UPDATE expenses_category_assigned_to_users SET user_id = :userId ORDER BY id DESC LIMIT 16');
+            // $query -> bindValue(':userId',$userId,PDO::PARAM_INT);
+            // $query -> execute();
+            $query = $connection -> prepare('INSERT INTO expenses_category_assigned_to_users(user_id,name) SELECT users.id, expenses_category_default.name FROM users, expenses_category_default WHERE users.id = :userId');
             $query -> bindValue(':userId',$userId,PDO::PARAM_INT);
             $query -> execute();
 
@@ -134,7 +137,7 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
 </head>
 
@@ -255,7 +258,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
         integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
         crossorigin="anonymous"></script>
-    <script src="appShow.js"></script>
+    <script src="js/appShow.js"></script>
 </body>
 
 </html>
