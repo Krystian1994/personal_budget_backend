@@ -1,8 +1,71 @@
 <?php
     session_start();
+
     if(!isset($_SESSION['idUser'])){
         header('Location: index.php');
         exit();
+    }
+
+    $validation = true;
+
+    if(isset($_POST['amount'])){
+        $amount = $_POST['amount'];
+
+        if($amount <= 0){
+            $validation = false;
+            $_SESSION['errAmountExpense'] = "Wprowadzona kwota przychodu jest nieprawidłowa.";
+        }
+
+        $comment = htmlentities($_POST['comment'],ENT_QUOTES,"UTF-8");
+
+        if(!isset($_POST['date'])){
+            $validation = false;
+            $_SESSION['errDateExpense'] = "Nie podano daty wydatku.";
+        }
+        $date = $_POST['date'];
+
+        if(!isset($_POST['pay'])){
+            $validation = false;
+            $_SESSION['errPay'] = "Nie podano sposobu płatności.";
+        }
+        $pay = $_POST['pay'];
+
+        if(!isset($_POST['expense'])){
+            $validation = false;
+            $_SESSION['errExpense'] = "Nie wybrano kategorii wydatku.";
+        }
+        $expense = $_POST['expense'];
+        
+        if($validation == true){
+            require_once "database.php";
+
+            $queryExpense = $connection -> prepare('SELECT id FROM expenses_category_assigned_to_users WHERE user_id = :user_id AND name LIKE :expense');
+            $queryExpense -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryExpense -> bindValue(':expense', $expense, PDO::PARAM_STR);
+            $queryExpense -> execute();
+            $expensesId = $queryExpense -> fetch();
+            $idExpenseCategory = $expensesId['id'];
+
+            $result = $connection -> prepare('SELECT id FROM payment_methods_assigned_to_users WHERE user_id = :user_id AND name LIKE :pay');
+            $result -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $result -> bindValue(':pay', $pay, PDO::PARAM_STR);
+            $result -> execute();
+            $paysId = $result -> fetch();
+            $idPayCategory = $paysId['id'];
+
+            $query = $connection -> prepare('INSERT INTO expenses (user_id, expense_category_assigned_to_user_id, payment_method_assigned_to_user_id, amount, date_of_expense, expense_comment) VALUES (:user_id, :idExpenseCategory, :idPayCategory, :amount, :date, :comment)');
+            $query -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $query -> bindValue(':idExpenseCategory', $idExpenseCategory, PDO::PARAM_STR);
+            $query -> bindValue(':idPayCategory', $idPayCategory, PDO::PARAM_STR);
+            $query -> bindValue(':amount', $amount, PDO::PARAM_STR);
+            $query -> bindValue(':date', $date, PDO::PARAM_STR);
+            $query -> bindValue(':comment', $comment, PDO::PARAM_STR);
+            $query -> execute();
+
+            $_SESSION['addExpenseComplete'] = "Wydatek został dodany do bazy.";
+        }else{
+            $_SESSION['addExpenseComplete'] = "Przepraszamy, wsytąpił problem.";
+        }
     }
 ?>
 
@@ -93,7 +156,7 @@
                     </nav>
 
                     <div class="col-9 text-center">
-                        <form action="#">
+                        <form method="post">
                             <div class="d-flex align-items-center flex-column  ">
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <div class="input-group-prepend">
@@ -107,7 +170,13 @@
                                             </svg></span>
                                     </div>
                                     <input type="number" min="0.01" step="0.01" class="form-control"
-                                        placeholder="kwota">
+                                        placeholder="kwota" name="amount">
+                                    <?php 
+                                        if(isset($_SESSION['errAmountExpense'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errAmountExpense'].'</div>';
+                                            unset($_SESSION['errAmountExpense']);
+                                        }
+                                    ?>
                                 </div>
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <div class=" input-group-prepend">
@@ -120,46 +189,69 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input id="actualDate" type="date" class="form-control">
+                                    <input id="actualDate" type="date" class="form-control" name="date">
+                                    <?php 
+                                        if(isset($_SESSION['errDateExpense'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errDateExpense'].'</div>';
+                                            unset($_SESSION['errDateExpense']);
+                                        }
+                                    ?>
                                 </div>
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <select class="form-control" name="pay">
                                         <option value="" disabled selected hidden>Wybierz sposób płatności</option>
-                                        <option value="GT">Gotówka</option>
-                                        <option value="KD">Karta debetowa</option>
-                                        <option value="KK">Karta kredytowa</option>
+                                        <option value="Cash">Gotówka</option>
+                                        <option value="Debit Card">Karta debetowa</option>
+                                        <option value="Credit Card">Karta kredytowa</option>
                                     </select>
                                 </div>
+                                <?php 
+                                    if(isset($_SESSION['errPay'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errPay'].'</div>';
+                                        unset($_SESSION['errPay']);
+                                    }
+                                ?>
                                 <div class="input-group col-md-4 col-7 m-1">
-                                    <select class="form-control" name="category">
+                                    <select class="form-control" name="expense">
                                         <option value="" disabled selected hidden>Wybierz kategorię wydatku</option>
-                                        <option value="JE">Jedzenie</option>
-                                        <option value="MI">Mieszkanie</option>
-                                        <option value="TR">Transport</option>
-                                        <option value="TL">Telekomunikacja</option>
-                                        <option value="OZ">Opieka Zdrowotna</option>
-                                        <option value="UB">Ubranie</option>
-                                        <option value="HG">Higiena</option>
-                                        <option value="DZ">Dzieci</option>
-                                        <option value="RO">Rozrywka</option>
-                                        <option value="WY">Wycieczka</option>
-                                        <option value="SZ">Szkolenia</option>
-                                        <option value="KS">Książki</option>
-                                        <option value="OS">Oszczędności</option>
-                                        <option value="EM">Emerytura</option>
-                                        <option value="DŁ">Dług</option>
-                                        <option value="DA">Darowizna</option>
-                                        <option value="IN">Inne</option>
+                                        <option value="Food">Jedzenie</option>
+                                        <option value="Apartments">Mieszkanie</option>
+                                        <option value="Transport">Transport</option>
+                                        <option value="Telecommunication">Telekomunikacja</option>
+                                        <option value="Health">Opieka Zdrowotna</option>
+                                        <option value="Clothes">Ubranie</option>
+                                        <option value="Hygiene">Higiena</option>
+                                        <option value="Kids">Dzieci</option>
+                                        <option value="Recreation">Rozrywka</option>
+                                        <option value="Trip">Wycieczka</option>
+                                        <option value="Books">Książki</option>
+                                        <option value="Savings">Oszczędności</option>
+                                        <option value="For Retirement">Emerytura</option>
+                                        <option value="Debit Repayment">Dług</option>
+                                        <option value="Gift">Darowizna</option>
+                                        <option value="Another">Inne</option>
                                     </select>
                                 </div>
+                                <?php 
+                                    if(isset($_SESSION['errExpense'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errExpense'].'</div>';
+                                        unset($_SESSION['errExpense']);
+                                    }
+                                ?>
                                 <div class="input-group col-md-4 col-7 m-1">
                                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                                        placeholder="Dodaj komentarz"></textarea>
+                                        placeholder="Dodaj komentarz" name="comment"></textarea>
                                 </div>
+                                <?php
+                                    if(isset($_SESSION['addExpenseComplete'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['addExpenseComplete'].'</div>';
+                                        unset($_SESSION['addExpenseComplete']);
+                                    }
+                                ?>
                             </div>
                             <div class="d-flex justify-content-center">
                                 <div class="d-flex justify-content-center col-8 m-5">
-                                    <a class="btn btn-secondary col-2 m-2 p-1" href="#" role="button">Anuluj</a>
+                                    <a class="btn btn-secondary col-2 m-2 p-1" href="addexpense.php" role="button">Anuluj</a>
                                     <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Dodaj Wydatek">
                                 </div>
                             </div>

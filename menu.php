@@ -91,7 +91,7 @@
                             <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div class="col-9 text-center">
+                    <div id="menuImg" class="col-9 text-center">
                         <img src="img/biznesmen.jpg" class="img-fluid" alt="Responsive image">
                     </div>
                 </div>
@@ -120,6 +120,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
         integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
         crossorigin="anonymous"></script>
+    <script src="js/scriptMenu.js"></script>
 </body>
 
 </html>

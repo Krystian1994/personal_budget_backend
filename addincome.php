@@ -29,11 +29,29 @@
         }
         $income = $_POST['income'];
         
-        //require_once "database.php";
+        if($validation == true){
+            require_once "database.php";
 
-        // $result = $connection -> prepare('SELECT id FROM incomes_category_assigned_to_users WHERE user_id = :user_id AND name = :name');
-        // $result -> bindValue(':name', $income, PDO::PARAM_STR);
-        // $result -> execute();
+            $result = $connection -> prepare('SELECT id FROM incomes_category_assigned_to_users WHERE user_id = :user_id AND name LIKE :income');
+            $result -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $result -> bindValue(':income', $income, PDO::PARAM_STR);
+            $result -> execute();
+            $incomesId = $result -> fetch();
+            $idIncomeCategory = $incomesId['id'];
+
+            $query = $connection -> prepare('INSERT INTO incomes (user_id, income_category_assigned_to_user_id, amount, date_of_income, income_comment) VALUES (:user_id, :idIncomeCategory, :amount, :date, :comment)'); 
+            $query -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $query -> bindValue(':idIncomeCategory', $idIncomeCategory, PDO::PARAM_STR);
+            $query -> bindValue(':amount', $amount, PDO::PARAM_STR);
+            $query -> bindValue(':date', $date, PDO::PARAM_STR);
+            $query -> bindValue(':comment', $comment, PDO::PARAM_STR);
+            $query -> execute();
+            echo $idIncomeCategory;
+
+            $_SESSION['addIncomeComplete'] = "Przychód został dodany";
+        }else{
+            $_SESSION['addIncomeComplete'] = "Przepraszamy, wsytąpił problem";
+        }
     }
 ?>
 
@@ -136,7 +154,7 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input type="number" class="form-control" placeholder="kwota" name="amount">
+                                    <input type="number" class="form-control" min="0.01" step="0.01" placeholder="kwota" name="amount">
                                     <?php 
                                         if(isset($_SESSION['errAmountIncome'])){
                                             echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errAmountIncome'].'</div>';
@@ -182,10 +200,16 @@
                                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
                                         placeholder="Dodaj komentarz" name="comment"></textarea>
                                 </div>
+                                <?php
+                                    if(isset($_SESSION['addIncomeComplete'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['addIncomeComplete'].'</div>';
+                                        unset($_SESSION['addIncomeComplete']);
+                                    }
+                                ?>
                             </div>
                             <div class="d-flex justify-content-center">
                                 <div class="d-flex justify-content-center col-8 m-5">
-                                    <a class="btn btn-secondary col-2 m-2 p-1" href="#" role="button">Anuluj</a>
+                                    <a class="btn btn-secondary col-2 m-2 p-1" href="addincome.php" role="button">Anuluj</a>
                                     <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Dodaj Przychód">
                                 </div>
                             </div>

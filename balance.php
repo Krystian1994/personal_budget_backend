@@ -1,3 +1,31 @@
+<?php
+    session_start();
+
+    if(!isset($_SESSION['idUser'])){
+        header('Location: index.php');
+        exit();
+    }
+
+    // if(isset($_POST['currentMonth'])){
+    //     $actualDate = date('Y-m-d');
+    //     echo strtotime($actualDate);
+
+    // }
+
+    // if(isset($_POST['previousMonth'])){
+    //     echo "wcisnieto previousMonth";
+    // }
+
+    // if(isset($_POST['currentYear'])){
+    //     echo "wcisnieto  currenyear";
+    // }
+    
+    if(isset($_POST['submit']) && isset($_POST['firstDate']) && isset($_POST['secondDate'])){
+        echo "ustawiono wybray okres";
+    }
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -84,58 +112,41 @@
                         </div>
                     </nav>
                     <div class="col-9 pl-0">
-                        <form action="#">
+                        <form method="post">
                             <div class="d-flex justify-content-around bg-light py-2">
+                                <!-- <div>
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <button type="submit" class="btn btn-secondary" name="currentMonth">Bieżący miesiąc</button>
+                                        <button type="submit" class="btn btn-secondary" name="previousMonth">Poprzedni miesiąc</button>
+                                        <button type="submit" class="btn btn-secondary" name="currentYear">Bieżący rok</button>
+                                    </div>
+                                </div> -->
                                 <div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio1" name="customRadio"
-                                            class="custom-control-input" checked>
-                                        <label class="custom-control-label" for="customRadio1">Bieżący miesiąc</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio2" name="customRadio"
-                                            class="custom-control-input">
-                                        <label class="custom-control-label" for="customRadio2">Poprzedni miesiąc</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio3" name="customRadio"
-                                            class="custom-control-input">
-                                        <label class="custom-control-label" for="customRadio3">Bieżący rok</label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio4" name="customRadio"
-                                            class="custom-control-input">
-                                        <label class="custom-control-label" for="customRadio4">Wybrany okres</label>
-
-                                        <div class="input-group m-1 pl-0">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" id="basic-addon1">Od:</span>
-                                            </div>
-                                            <input id="d1" type="date" value="" class="form-control">
+                                    <div class="input-group m-1 pl-0">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Od:</span>
                                         </div>
-                                        <div class="input-group m-1 pl-0">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" id="basic-addon2">Do:</span>
-                                            </div>
-                                            <input id="d2" type="date" class="form-control">
-                                        </div>
+                                        <input id="d1" type="date" value="" class="form-control" name="firstDate">
                                     </div>
+                                    <div class="input-group m-1 pl-0">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon2">Do:</span>
+                                        </div>
+                                        <input id="d2" type="date" class="form-control" name="secondDate">
+                                    </div>
+                                    
                                 </div>
-                                <div><button type="submit" class="btn btn-outline-dark">Przeglądaj bilans</button></div>
-
+                                <div><button type="submit" class="btn btn-success" name="submit">Przeglądaj bilans</button></div>
                             </div>
-                            <div class="d-flex justify-content-around py-3">
-                                <div>
-                                    <h4>Przychody:</h4>
-                                </div>
-                                <div>
-                                    <h4>Wydatki:</h4>
-                                </div>
-                            </div>
-
                         </form>
+                        <div class="d-flex justify-content-around py-3">
+                            <div>
+                                <h4>Przychody:</h4>
+                            </div>
+                            <div>
+                                <h4>Wydatki:</h4>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

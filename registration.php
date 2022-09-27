@@ -86,7 +86,7 @@
 
         if($validation == true){
             //dane formularza przeszły wszystkie testy, możemy dodać użtkownika do bazy danych.
-            $query = $connection -> prepare('INSERT INTO users SET username = :nick , password = :passwordHash , email = :email');
+            $query = $connection -> prepare('INSERT INTO users SET username = :nick, password = :passwordHash, email = :email');
             $query -> bindValue(':nick',$nick,PDO::PARAM_STR);
             $query -> bindValue(':passwordHash',$passwordHash,PDO::PARAM_STR);
             $query -> bindValue(':email',$email,PDO::PARAM_STR);
