@@ -227,8 +227,8 @@
                     ?>
                     <div class="d-flex justify-content-center">
                         <div class="d-flex justify-content-center col-8">
-                            <a class="btn btn-secondary col-2 m-2 p-1" href="index.php" role="button">Cofnij</a>
-                            <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Zarejestruj">
+                            <a class="btn btn-secondary col-md-2 m-2 p-1" href="index.php" role="button">Cofnij</a>
+                            <input class="btn btn-success col-md-4 m-2 p-1" type="submit" value="Zarejestruj">
                         </div>
                     </div>
                 </form>

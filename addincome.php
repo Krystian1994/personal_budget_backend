@@ -84,12 +84,12 @@
         </header>
 
         <article>
-            <div>
+            <div class="">
                 <blockquote class="blockquote d-block w-100">
                     <h2 class="text-center p-5">Wprowadź dane przychodu:</h2>
                 </blockquote>
                 <div class="row">
-                    <nav class="col-3 border-right pr-0">
+                    <nav class="col-xs-12 col-sm-6 col-md-3 border-right pr-0">
                         <div class="nav flex-column">
                             <a class="btn btn-primary bt-sm m-3" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
@@ -109,7 +109,7 @@
                                     <path
                                         d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
                                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
-                                </svg> Dodaj Przychóda</a>
+                                </svg> Dodaj Przychód</a>
                             <a class="btn btn-primary bt-sm m-3" href="addexpense.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cart4" viewBox="0 0 16 16">
@@ -140,10 +140,10 @@
                             <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div class="col-9 text-center">
+                    <div class="col-xs-12 col-sm-6 col-md-9 text-center">
                         <form method="post">
                             <div class="d-flex align-items-center flex-column  ">
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><svg xmlns="http://www.w3.org/2000/svg"
                                                 width="20" height="20" fill="currentColor" class="bi bi-pencil-square"
@@ -154,7 +154,7 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input type="number" class="form-control" min="0.01" step="0.01" placeholder="kwota" name="amount">
+                                    <input type="number" class="form-control" min="0.01" step="0.01" placeholder="kwota" name="amount" required>
                                     <?php 
                                         if(isset($_SESSION['errAmountIncome'])){
                                             echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errAmountIncome'].'</div>';
@@ -162,7 +162,7 @@
                                         }
                                     ?>
                                 </div>
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <div class=" input-group-prepend">
                                         <span class="input-group-text"><svg xmlns="http://www.w3.org/2000/svg"
                                                 width="20" height="20" fill="currentColor" class="bi bi-pencil-square"
@@ -173,7 +173,7 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input id="actualDate" type="date" class="form-control" name="date">
+                                    <input id="actualDate" type="date" class="form-control" name="date" min="2022-01-01">
                                     <?php 
                                         if(isset($_SESSION['errDateIncome'])){
                                             echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errDateIncome'].'</div>';
@@ -181,7 +181,7 @@
                                         }
                                     ?>
                                 </div>
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <select class="form-control" name="income">
                                         <option value="" disabled selected hidden>Wybierz rodzaj przychodu</option>
                                         <option value="Salary">Wynagrodzenie</option>
@@ -196,7 +196,7 @@
                                         unset($_SESSION['errIncome']);
                                     }
                                 ?>
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
                                         placeholder="Dodaj komentarz" name="comment"></textarea>
                                 </div>
@@ -208,9 +208,9 @@
                                 ?>
                             </div>
                             <div class="d-flex justify-content-center">
-                                <div class="d-flex justify-content-center col-8 m-5">
-                                    <a class="btn btn-secondary col-2 m-2 p-1" href="addincome.php" role="button">Anuluj</a>
-                                    <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Dodaj Przychód">
+                                <div class="d-flex justify-content-center col-10 m-5">
+                                    <a class="btn btn-secondary col-md-2 m-2 p-1" href="addincome.php" role="button">Anuluj</a>
+                                    <input class="btn btn-success col-md-4 m-2 p-1" type="submit" value="Dodaj Przychód">
                                 </div>
                             </div>
                         </form>

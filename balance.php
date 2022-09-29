@@ -19,9 +19,46 @@
     // if(isset($_POST['currentYear'])){
     //     echo "wcisnieto  currenyear";
     // }
-    
+    $validation = true;
+
     if(isset($_POST['submit']) && isset($_POST['firstDate']) && isset($_POST['secondDate'])){
-        echo "ustawiono wybray okres";
+        
+        $_SESSION['firstBalanceDate'] = $_POST['firstDate'];
+        $_SESSION['secondBalanceDate'] = $_POST['secondDate'];
+
+        $first_balance_date = new DateTime($_SESSION['firstBalanceDate']);
+        $second_balance_date = new DateTime($_SESSION['secondBalanceDate']);
+
+        if($second_balance_date < $first_balance_date){
+            $validation = false;
+            $_SESSION['errDateBalance'] = "Źle określono przediał czasu.";
+        }
+
+        if($validation == true)
+        {
+            require_once "database.php";
+        
+            //Przychody
+            $queryIncomes = $connection -> prepare('SELECT name, SUM(amount) AS sumIncome FROM incomes_category_assigned_to_users, incomes WHERE date_of_income >= :firstDate AND date_of_income <= :secondDate AND incomes.income_category_assigned_to_user_id = incomes_category_assigned_to_users.id AND incomes.user_id = :idUser GROUP BY name ORDER BY sumIncome DESC');
+            $queryIncomes -> bindValue(':firstDate', $_SESSION['firstBalanceDate'], PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':secondDate', $_SESSION['secondBalanceDate'], PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryIncomes -> execute();
+            $incomesBudget = $queryIncomes -> fetchAll();
+
+            $_SESSION['incomeBalance'] = "incomes";
+
+            //Wydatki 
+            $queryExpense= $connection -> prepare('SELECT name, SUM(amount) AS sumExpense FROM expenses_category_assigned_to_users, expenses WHERE date_of_expense >= :firstDate AND date_of_expense <= :secondDate AND expenses.expense_category_assigned_to_user_id = expenses_category_assigned_to_users.id AND expenses.user_id = :idUser GROUP BY name ORDER BY sumExpense DESC');
+            $queryExpense -> bindValue(':firstDate', $_SESSION['firstBalanceDate'], PDO::PARAM_STR);
+            $queryExpense -> bindValue(':secondDate', $_SESSION['secondBalanceDate'], PDO::PARAM_STR);
+            $queryExpense -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryExpense -> execute();
+            $expensesBudget = $queryExpense -> fetchAll();
+
+            $_SESSION['expenseBalance'] = "expenses";
+        }
+        
     }
 
 ?>
@@ -60,7 +97,7 @@
                     <h2 class="text-center p-5">Przeglądaj bilans z wybranego okresu:</h2>
                 </blockquote>
                 <div class="row">
-                    <nav class="col-3 border-right pr-0">
+                    <nav class="col-xs-12 col-sm-6 col-md-3 border-right pr-0">
                         <div class="nav flex-column">
                             <a class="btn btn-primary bt-sm m-3" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
@@ -80,7 +117,7 @@
                                     <path
                                         d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
                                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
-                                </svg> Dodaj Przychóda</a>
+                                </svg> Dodaj Przychód</a>
                             <a class="btn btn-primary bt-sm m-3" href="addexpense.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cart4" viewBox="0 0 16 16">
@@ -108,12 +145,12 @@
                                 </svg>Wyloguj się</a>
                         </div>
                         <div>
-                            <p id="logIn" class="text-success mt-5 p-3">Zalogowany: Użytkownik</p>
+                        <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div class="col-9 pl-0">
+                    <div class="col-xs-12 col-sm-6 col-md-9 pl-0">
                         <form method="post">
-                            <div class="d-flex justify-content-around bg-light py-2">
+                            <div class="d-flex justify-content-around flex-sm-column flex-md-row bg-light py-2">
                                 <!-- <div>
                                     <div class="btn-group" role="group" aria-label="Basic example">
                                         <button type="submit" class="btn btn-secondary" name="currentMonth">Bieżący miesiąc</button>
@@ -122,31 +159,87 @@
                                     </div>
                                 </div> -->
                                 <div>
-                                    <div class="input-group m-1 pl-0">
+                                    <div class="col-xs-12 col-sm-12 input-group m-1 pl-0">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Od:</span>
                                         </div>
-                                        <input id="d1" type="date" value="" class="form-control" name="firstDate">
+                                        <input id="d1" type="date" <?php if(isset($_SESSION['incomeBalance'])){echo 'value="'.$_SESSION['firstBalanceDate'].'" ';} ?> class="form-control" name="firstDate" min="2022-01-01">
                                     </div>
-                                    <div class="input-group m-1 pl-0">
+                                    <div class="col-xs-12 col-sm-12 input-group m-1 pl-0">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon2">Do:</span>
                                         </div>
-                                        <input id="d2" type="date" class="form-control" name="secondDate">
+                                        <input id="d2" type="date" <?php if(isset($_SESSION['expenseBalance'])){echo 'value="'.$_SESSION['secondBalanceDate'].'" ';} ?> class="form-control" name="secondDate" min="2022-01-01">
                                     </div>
+                                    <?php 
+                                        if(isset($_SESSION['errDateBalance'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errDateBalance'].'</div>';
+                                            unset($_SESSION['errDateBalance']);
+                                        }
+                                    ?>
                                     
                                 </div>
-                                <div><button type="submit" class="btn btn-success" name="submit">Przeglądaj bilans</button></div>
+                                <div><button type="submit" class="btn btn-success m-1" name="submit">Przeglądaj bilans</button></div>
                             </div>
                         </form>
-                        <div class="d-flex justify-content-around py-3">
-                            <div>
-                                <h4>Przychody:</h4>
+                        <div class="row justify-content-center">
+                            <div class="col-xs-12 col-sm-12 col-md-4 m-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Przychód:</th>
+                                            <th scope="col">Kwota:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            if(isset($_SESSION['incomeBalance'])){
+                                                foreach($incomesBudget as $incomes){
+                                                    echo '<tr><th scope="row">'.$incomes[0].'</th><td>'.$incomes[1].'</td></tr>';
+                                                    $_SESSION['sumIncomes'] += $incomes[1];
+                                                }
+                                                echo '<tr><th scope="row">Suma:</th><td>'.$_SESSION['sumIncomes'].'</td></tr>';
+                                                unset($_SESSION['incomeBalance']);
+                                            }
+                                        ?>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div>
-                                <h4>Wydatki:</h4>
+                            <div class="col-xs-12 col-sm-12 col-md-4 m-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Wydatek:</th>
+                                            <th scope="col">Kwota:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            if(isset($_SESSION['expenseBalance'])){
+                                                foreach($expensesBudget as $expenses){
+                                                    echo '<tr><th scope="row">'.$expenses[0].'</th><td>'.$expenses[1].'</td></tr>';
+                                                    $_SESSION['sumExpenses'] += $expenses[1];
+                                                }
+                                                echo '<tr><th scope="row">Suma:</th><td>'.$_SESSION['sumExpenses'].'</td></tr>';
+                                                unset($_SESSION['expenseBalance']);
+                                            }
+                                        ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+                        <?php
+                                if(isset($_SESSION['sumIncomes']) && isset($_SESSION['sumExpenses'])){
+                                    $balance = $_SESSION['sumIncomes'] - $_SESSION['sumExpenses'];
+                                    if($_SESSION['sumIncomes'] <= $_SESSION['sumExpenses']){
+                                        echo '<div class="alert alert-danger" role="alert">Uważaj, wpadasz w długi! Twój bilans wynosi: '.$balance.'</div>';
+                                    }else{
+                                        echo '<div class="alert alert-success" role="alert">Gratulacje! Twój bilans wynosi: '.$balance.'</div>';
+                                    }
+                                    unset($_SESSION['sumIncomes']);
+                                    unset($_SESSION['sumExpenses']);
+                                }
+                            ?>
                     </div>
                 </div>
             </div>
