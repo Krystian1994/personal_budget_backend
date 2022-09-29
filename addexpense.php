@@ -1,8 +1,71 @@
 <?php
     session_start();
+
     if(!isset($_SESSION['idUser'])){
         header('Location: index.php');
         exit();
+    }
+
+    $validation = true;
+
+    if(isset($_POST['amount'])){
+        $amount = $_POST['amount'];
+
+        if($amount <= 0){
+            $validation = false;
+            $_SESSION['errAmountExpense'] = "Wprowadzona kwota przychodu jest nieprawidłowa.";
+        }
+
+        $comment = htmlentities($_POST['comment'],ENT_QUOTES,"UTF-8");
+
+        if(!isset($_POST['date'])){
+            $validation = false;
+            $_SESSION['errDateExpense'] = "Nie podano daty wydatku.";
+        }
+        $date = $_POST['date'];
+
+        if(!isset($_POST['pay'])){
+            $validation = false;
+            $_SESSION['errPay'] = "Nie podano sposobu płatności.";
+        }
+        $pay = $_POST['pay'];
+
+        if(!isset($_POST['expense'])){
+            $validation = false;
+            $_SESSION['errExpense'] = "Nie wybrano kategorii wydatku.";
+        }
+        $expense = $_POST['expense'];
+        
+        if($validation == true){
+            require_once "database.php";
+
+            $queryExpense = $connection -> prepare('SELECT id FROM expenses_category_assigned_to_users WHERE user_id = :user_id AND name LIKE :expense');
+            $queryExpense -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryExpense -> bindValue(':expense', $expense, PDO::PARAM_STR);
+            $queryExpense -> execute();
+            $expensesId = $queryExpense -> fetch();
+            $idExpenseCategory = $expensesId['id'];
+
+            $result = $connection -> prepare('SELECT id FROM payment_methods_assigned_to_users WHERE user_id = :user_id AND name LIKE :pay');
+            $result -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $result -> bindValue(':pay', $pay, PDO::PARAM_STR);
+            $result -> execute();
+            $paysId = $result -> fetch();
+            $idPayCategory = $paysId['id'];
+
+            $query = $connection -> prepare('INSERT INTO expenses (user_id, expense_category_assigned_to_user_id, payment_method_assigned_to_user_id, amount, date_of_expense, expense_comment) VALUES (:user_id, :idExpenseCategory, :idPayCategory, :amount, :date, :comment)');
+            $query -> bindValue(':user_id', $_SESSION['idUser'], PDO::PARAM_STR);
+            $query -> bindValue(':idExpenseCategory', $idExpenseCategory, PDO::PARAM_STR);
+            $query -> bindValue(':idPayCategory', $idPayCategory, PDO::PARAM_STR);
+            $query -> bindValue(':amount', $amount, PDO::PARAM_STR);
+            $query -> bindValue(':date', $date, PDO::PARAM_STR);
+            $query -> bindValue(':comment', $comment, PDO::PARAM_STR);
+            $query -> execute();
+
+            $_SESSION['addExpenseComplete'] = "Wydatek został dodany do bazy.";
+        }else{
+            $_SESSION['addExpenseComplete'] = "Przepraszamy, wsytąpił problem.";
+        }
     }
 ?>
 
@@ -16,7 +79,7 @@
     <title>Add Expense Budget</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
 </head>
 
@@ -40,9 +103,9 @@
                     <h2 class="text-center p-5">Wprowadź dane wydatku:</h2>
                 </blockquote>
                 <div class="row">
-                    <nav class="col-3 border-right pr-0">
+                    <nav class="col-xs-12 col-sm-6 col-md-3 border-right pr-0">
                         <div class="nav flex-column">
-                            <a class="btn btn-primary bt-sm m-3" href="menu.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-house-fill" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -50,7 +113,7 @@
                                     <path fill-rule="evenodd"
                                         d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z" />
                                 </svg> Strona Główna</a>
-                            <a class="btn btn-primary bt-sm m-3" href="addincome.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="addincome.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cash-coin" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -60,14 +123,14 @@
                                     <path
                                         d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
                                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
-                                </svg> Dodaj Przychóda</a>
-                            <a class="btn btn-primary bt-sm m-3 active" href="addexpense.html" role="button"><svg
+                                </svg> Dodaj Przychód</a>
+                            <a class="btn btn-primary bt-sm m-3 active" href="addexpense.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cart4" viewBox="0 0 16 16">
                                     <path
                                         d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" />
                                 </svg> Dodaj Wydatek</a>
-                            <a class="btn btn-primary bt-sm m-3" href="balance.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="balance.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-list-check" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -79,7 +142,7 @@
                                     <path
                                         d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364L.102 2.223zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11l.471.242z" />
                                 </svg> Ustawienia</a>
-                            <a class="btn btn-primary bt-sm m-3" href="index.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="logout.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-door-open" viewBox="0 0 16 16">
                                     <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z" />
@@ -91,11 +154,10 @@
                             <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-
-                    <div class="col-9 text-center">
-                        <form action="#">
+                    <div class="col-xs-12 col-sm-6 col-md-9 text-center">
+                        <form method="post">
                             <div class="d-flex align-items-center flex-column  ">
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><svg xmlns="http://www.w3.org/2000/svg"
                                                 width="20" height="20" fill="currentColor" class="bi bi-pencil-square"
@@ -107,9 +169,15 @@
                                             </svg></span>
                                     </div>
                                     <input type="number" min="0.01" step="0.01" class="form-control"
-                                        placeholder="kwota">
+                                        placeholder="kwota" name="amount" required>
+                                    <?php 
+                                        if(isset($_SESSION['errAmountExpense'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errAmountExpense'].'</div>';
+                                            unset($_SESSION['errAmountExpense']);
+                                        }
+                                    ?>
                                 </div>
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <div class=" input-group-prepend">
                                         <span class="input-group-text"><svg xmlns="http://www.w3.org/2000/svg"
                                                 width="20" height="20" fill="currentColor" class="bi bi-pencil-square"
@@ -120,47 +188,70 @@
                                                     d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg></span>
                                     </div>
-                                    <input id="actualDate" type="date" class="form-control">
+                                    <input id="actualDate" type="date" class="form-control" name="date" min="2022-01-01">
+                                    <?php 
+                                        if(isset($_SESSION['errDateExpense'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errDateExpense'].'</div>';
+                                            unset($_SESSION['errDateExpense']);
+                                        }
+                                    ?>
                                 </div>
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <select class="form-control" name="pay">
                                         <option value="" disabled selected hidden>Wybierz sposób płatności</option>
-                                        <option value="GT">Gotówka</option>
-                                        <option value="KD">Karta debetowa</option>
-                                        <option value="KK">Karta kredytowa</option>
+                                        <option value="Cash">Gotówka</option>
+                                        <option value="Debit Card">Karta debetowa</option>
+                                        <option value="Credit Card">Karta kredytowa</option>
                                     </select>
                                 </div>
-                                <div class="input-group col-md-4 col-7 m-1">
-                                    <select class="form-control" name="category">
+                                <?php 
+                                    if(isset($_SESSION['errPay'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errPay'].'</div>';
+                                        unset($_SESSION['errPay']);
+                                    }
+                                ?>
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
+                                    <select class="form-control" name="expense">
                                         <option value="" disabled selected hidden>Wybierz kategorię wydatku</option>
-                                        <option value="JE">Jedzenie</option>
-                                        <option value="MI">Mieszkanie</option>
-                                        <option value="TR">Transport</option>
-                                        <option value="TL">Telekomunikacja</option>
-                                        <option value="OZ">Opieka Zdrowotna</option>
-                                        <option value="UB">Ubranie</option>
-                                        <option value="HG">Higiena</option>
-                                        <option value="DZ">Dzieci</option>
-                                        <option value="RO">Rozrywka</option>
-                                        <option value="WY">Wycieczka</option>
-                                        <option value="SZ">Szkolenia</option>
-                                        <option value="KS">Książki</option>
-                                        <option value="OS">Oszczędności</option>
-                                        <option value="EM">Emerytura</option>
-                                        <option value="DŁ">Dług</option>
-                                        <option value="DA">Darowizna</option>
-                                        <option value="IN">Inne</option>
+                                        <option value="Food">Jedzenie</option>
+                                        <option value="Apartments">Mieszkanie</option>
+                                        <option value="Transport">Transport</option>
+                                        <option value="Telecommunication">Telekomunikacja</option>
+                                        <option value="Health">Opieka Zdrowotna</option>
+                                        <option value="Clothes">Ubranie</option>
+                                        <option value="Hygiene">Higiena</option>
+                                        <option value="Kids">Dzieci</option>
+                                        <option value="Recreation">Rozrywka</option>
+                                        <option value="Trip">Wycieczka</option>
+                                        <option value="Books">Książki</option>
+                                        <option value="Savings">Oszczędności</option>
+                                        <option value="For Retirement">Emerytura</option>
+                                        <option value="Debit Repayment">Dług</option>
+                                        <option value="Gift">Darowizna</option>
+                                        <option value="Another">Inne</option>
                                     </select>
                                 </div>
-                                <div class="input-group col-md-4 col-7 m-1">
+                                <?php 
+                                    if(isset($_SESSION['errExpense'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errExpense'].'</div>';
+                                        unset($_SESSION['errExpense']);
+                                    }
+                                ?>
+                                <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">
                                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                                        placeholder="Dodaj komentarz"></textarea>
+                                        placeholder="Dodaj komentarz" name="comment"></textarea>
                                 </div>
+                                <?php
+                                    if(isset($_SESSION['addExpenseComplete'])){
+                                        echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['addExpenseComplete'].'</div>';
+                                        unset($_SESSION['addExpenseComplete']);
+                                    }
+                                ?>
                             </div>
                             <div class="d-flex justify-content-center">
-                                <div class="d-flex justify-content-center col-8 m-5">
-                                    <a class="btn btn-secondary col-2 m-2 p-1" href="#" role="button">Anuluj</a>
-                                    <input class="btn btn-success col-4 m-2 p-1" type="submit" value="Dodaj Wydatek">
+                                <div class="d-flex justify-content-center col-10 m-5">
+                                    <a class="btn btn-secondary col-md-2 m-2 p-1" href="addexpense.php" role="button">Anuluj</a>
+                                    <input class="btn btn-success col-md-4 m-2 p-1" type="submit" value="Dodaj Wydatek">
                                 </div>
                             </div>
                         </form>
@@ -191,7 +282,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
         integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
         crossorigin="anonymous"></script>
-    <script src="appDate.js"></script>
+    <script src="js/appDate.js"></script>
 </body>
 
 </html>

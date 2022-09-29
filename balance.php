@@ -1,3 +1,68 @@
+<?php
+    session_start();
+
+    if(!isset($_SESSION['idUser'])){
+        header('Location: index.php');
+        exit();
+    }
+
+    // if(isset($_POST['currentMonth'])){
+    //     $actualDate = date('Y-m-d');
+    //     echo strtotime($actualDate);
+
+    // }
+
+    // if(isset($_POST['previousMonth'])){
+    //     echo "wcisnieto previousMonth";
+    // }
+
+    // if(isset($_POST['currentYear'])){
+    //     echo "wcisnieto  currenyear";
+    // }
+    $validation = true;
+
+    if(isset($_POST['submit']) && isset($_POST['firstDate']) && isset($_POST['secondDate'])){
+        
+        $_SESSION['firstBalanceDate'] = $_POST['firstDate'];
+        $_SESSION['secondBalanceDate'] = $_POST['secondDate'];
+
+        $first_balance_date = new DateTime($_SESSION['firstBalanceDate']);
+        $second_balance_date = new DateTime($_SESSION['secondBalanceDate']);
+
+        if($second_balance_date < $first_balance_date){
+            $validation = false;
+            $_SESSION['errDateBalance'] = "Źle określono przediał czasu.";
+        }
+
+        if($validation == true)
+        {
+            require_once "database.php";
+        
+            //Przychody
+            $queryIncomes = $connection -> prepare('SELECT name, SUM(amount) AS sumIncome FROM incomes_category_assigned_to_users, incomes WHERE date_of_income >= :firstDate AND date_of_income <= :secondDate AND incomes.income_category_assigned_to_user_id = incomes_category_assigned_to_users.id AND incomes.user_id = :idUser GROUP BY name ORDER BY sumIncome DESC');
+            $queryIncomes -> bindValue(':firstDate', $_SESSION['firstBalanceDate'], PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':secondDate', $_SESSION['secondBalanceDate'], PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryIncomes -> execute();
+            $incomesBudget = $queryIncomes -> fetchAll();
+
+            $_SESSION['incomeBalance'] = "incomes";
+
+            //Wydatki 
+            $queryExpense= $connection -> prepare('SELECT name, SUM(amount) AS sumExpense FROM expenses_category_assigned_to_users, expenses WHERE date_of_expense >= :firstDate AND date_of_expense <= :secondDate AND expenses.expense_category_assigned_to_user_id = expenses_category_assigned_to_users.id AND expenses.user_id = :idUser GROUP BY name ORDER BY sumExpense DESC');
+            $queryExpense -> bindValue(':firstDate', $_SESSION['firstBalanceDate'], PDO::PARAM_STR);
+            $queryExpense -> bindValue(':secondDate', $_SESSION['secondBalanceDate'], PDO::PARAM_STR);
+            $queryExpense -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryExpense -> execute();
+            $expensesBudget = $queryExpense -> fetchAll();
+
+            $_SESSION['expenseBalance'] = "expenses";
+        }
+        
+    }
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,7 +73,7 @@
     <title>Show Balance Budget</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
 </head>
 
@@ -32,9 +97,9 @@
                     <h2 class="text-center p-5">Przeglądaj bilans z wybranego okresu:</h2>
                 </blockquote>
                 <div class="row">
-                    <nav class="col-3 border-right pr-0">
+                    <nav class="col-xs-12 col-sm-6 col-md-3 border-right pr-0">
                         <div class="nav flex-column">
-                            <a class="btn btn-primary bt-sm m-3" href="menu.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-house-fill" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -42,7 +107,7 @@
                                     <path fill-rule="evenodd"
                                         d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z" />
                                 </svg> Strona Główna</a>
-                            <a class="btn btn-primary bt-sm m-3" href="addincome.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="addincome.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cash-coin" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -52,14 +117,14 @@
                                     <path
                                         d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
                                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
-                                </svg> Dodaj Przychóda</a>
-                            <a class="btn btn-primary bt-sm m-3" href="addexpense.html" role="button"><svg
+                                </svg> Dodaj Przychód</a>
+                            <a class="btn btn-primary bt-sm m-3" href="addexpense.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cart4" viewBox="0 0 16 16">
                                     <path
                                         d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" />
                                 </svg> Dodaj Wydatek</a>
-                            <a class="btn btn-primary bt-sm m-3 active" href="balance.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3 active" href="balance.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-list-check" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
@@ -71,7 +136,7 @@
                                     <path
                                         d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364L.102 2.223zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11l.471.242z" />
                                 </svg> Ustawienia</a>
-                            <a class="btn btn-primary bt-sm m-3" href="index.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="logout.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-door-open" viewBox="0 0 16 16">
                                     <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z" />
@@ -80,62 +145,101 @@
                                 </svg>Wyloguj się</a>
                         </div>
                         <div>
-                            <p id="logIn" class="text-success mt-5 p-3">Zalogowany: Użytkownik</p>
+                        <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div class="col-9 pl-0">
-                        <form action="#">
-                            <div class="d-flex justify-content-around bg-light py-2">
+                    <div class="col-xs-12 col-sm-6 col-md-9 pl-0">
+                        <form method="post">
+                            <div class="d-flex justify-content-around flex-sm-column flex-md-row bg-light py-2">
+                                <!-- <div>
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <button type="submit" class="btn btn-secondary" name="currentMonth">Bieżący miesiąc</button>
+                                        <button type="submit" class="btn btn-secondary" name="previousMonth">Poprzedni miesiąc</button>
+                                        <button type="submit" class="btn btn-secondary" name="currentYear">Bieżący rok</button>
+                                    </div>
+                                </div> -->
                                 <div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio1" name="customRadio"
-                                            class="custom-control-input" checked>
-                                        <label class="custom-control-label" for="customRadio1">Bieżący miesiąc</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio2" name="customRadio"
-                                            class="custom-control-input">
-                                        <label class="custom-control-label" for="customRadio2">Poprzedni miesiąc</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio3" name="customRadio"
-                                            class="custom-control-input">
-                                        <label class="custom-control-label" for="customRadio3">Bieżący rok</label>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="customRadio4" name="customRadio"
-                                            class="custom-control-input">
-                                        <label class="custom-control-label" for="customRadio4">Wybrany okres</label>
-
-                                        <div class="input-group m-1 pl-0">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" id="basic-addon1">Od:</span>
-                                            </div>
-                                            <input id="d1" type="date" value="" class="form-control">
+                                    <div class="col-xs-12 col-sm-12 input-group m-1 pl-0">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">Od:</span>
                                         </div>
-                                        <div class="input-group m-1 pl-0">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text" id="basic-addon2">Do:</span>
-                                            </div>
-                                            <input id="d2" type="date" class="form-control">
-                                        </div>
+                                        <input id="d1" type="date" <?php if(isset($_SESSION['incomeBalance'])){echo 'value="'.$_SESSION['firstBalanceDate'].'" ';} ?> class="form-control" name="firstDate" min="2022-01-01">
                                     </div>
+                                    <div class="col-xs-12 col-sm-12 input-group m-1 pl-0">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon2">Do:</span>
+                                        </div>
+                                        <input id="d2" type="date" <?php if(isset($_SESSION['expenseBalance'])){echo 'value="'.$_SESSION['secondBalanceDate'].'" ';} ?> class="form-control" name="secondDate" min="2022-01-01">
+                                    </div>
+                                    <?php 
+                                        if(isset($_SESSION['errDateBalance'])){
+                                            echo '<div class="d-flex justify-content-center text-danger">'.$_SESSION['errDateBalance'].'</div>';
+                                            unset($_SESSION['errDateBalance']);
+                                        }
+                                    ?>
+                                    
                                 </div>
-                                <div><button type="submit" class="btn btn-outline-dark">Przeglądaj bilans</button></div>
-
+                                <div><button type="submit" class="btn btn-success m-1" name="submit">Przeglądaj bilans</button></div>
                             </div>
-                            <div class="d-flex justify-content-around py-3">
-                                <div>
-                                    <h4>Przychody:</h4>
-                                </div>
-                                <div>
-                                    <h4>Wydatki:</h4>
-                                </div>
-                            </div>
-
                         </form>
+                        <div class="row justify-content-center">
+                            <div class="col-xs-12 col-sm-12 col-md-4 m-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Przychód:</th>
+                                            <th scope="col">Kwota:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            if(isset($_SESSION['incomeBalance'])){
+                                                foreach($incomesBudget as $incomes){
+                                                    echo '<tr><th scope="row">'.$incomes[0].'</th><td>'.$incomes[1].'</td></tr>';
+                                                    $_SESSION['sumIncomes'] += $incomes[1];
+                                                }
+                                                echo '<tr><th scope="row">Suma:</th><td>'.$_SESSION['sumIncomes'].'</td></tr>';
+                                                unset($_SESSION['incomeBalance']);
+                                            }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4 m-3">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Wydatek:</th>
+                                            <th scope="col">Kwota:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            if(isset($_SESSION['expenseBalance'])){
+                                                foreach($expensesBudget as $expenses){
+                                                    echo '<tr><th scope="row">'.$expenses[0].'</th><td>'.$expenses[1].'</td></tr>';
+                                                    $_SESSION['sumExpenses'] += $expenses[1];
+                                                }
+                                                echo '<tr><th scope="row">Suma:</th><td>'.$_SESSION['sumExpenses'].'</td></tr>';
+                                                unset($_SESSION['expenseBalance']);
+                                            }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <?php
+                                if(isset($_SESSION['sumIncomes']) && isset($_SESSION['sumExpenses'])){
+                                    $balance = $_SESSION['sumIncomes'] - $_SESSION['sumExpenses'];
+                                    if($_SESSION['sumIncomes'] <= $_SESSION['sumExpenses']){
+                                        echo '<div class="alert alert-danger" role="alert">Uważaj, wpadasz w długi! Twój bilans wynosi: '.$balance.'</div>';
+                                    }else{
+                                        echo '<div class="alert alert-success" role="alert">Gratulacje! Twój bilans wynosi: '.$balance.'</div>';
+                                    }
+                                    unset($_SESSION['sumIncomes']);
+                                    unset($_SESSION['sumExpenses']);
+                                }
+                            ?>
                     </div>
                 </div>
             </div>

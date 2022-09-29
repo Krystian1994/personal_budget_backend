@@ -16,7 +16,7 @@
     <title>Main Menu Personal Budget</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
 </head>
 
@@ -39,8 +39,8 @@
                 <blockquote class="blockquote d-block w-100">
                     <h2 class="text-center p-5">Witaj <?php if(isset($_SESSION['idUser'])){ echo $_SESSION['userName'];} ?> w Menu Głównym</h2>
                 </blockquote>
-                <div class="row">
-                    <nav class="col-3 border-right pr-0">
+                <div id="mainMenu" class="row">
+                    <nav class="col-xs-12 col-sm-6 col-md-9 border-right pr-0">
                         <div class="nav flex-column">
                             <a class="btn btn-primary bt-sm m-3 active" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
@@ -79,7 +79,7 @@
                                     <path
                                         d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364L.102 2.223zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11l.471.242z" />
                                 </svg> Ustawienia</a>
-                            <a class="btn btn-primary bt-sm m-3" href="index.html" role="button"><svg
+                            <a class="btn btn-primary bt-sm m-3" href="logout.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-door-open" viewBox="0 0 16 16">
                                     <path d="M8.5 10c-.276 0-.5-.448-.5-1s.224-1 .5-1 .5.448.5 1-.224 1-.5 1z" />
@@ -91,7 +91,7 @@
                             <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div class="col-9 text-center">
+                    <div id="menuImg" class="col-xs-12 col-sm-6 col-md-9 text-center">
                         <img src="img/biznesmen.jpg" class="img-fluid" alt="Responsive image">
                     </div>
                 </div>
