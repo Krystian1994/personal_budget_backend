@@ -39,8 +39,8 @@
                 <blockquote class="blockquote d-block w-100">
                     <h2 class="text-center p-5">Witaj <?php if(isset($_SESSION['idUser'])){ echo $_SESSION['userName'];} ?> w Menu Głównym</h2>
                 </blockquote>
-                <div id="mainMenu" class="row">
-                    <nav class="col-xs-12 col-sm-6 col-md-9 border-right pr-0">
+                <div id="mainMenu" class="row m-0 p-0">
+                    <nav class="col-12 col-sm-6 col-md-3 border-right">
                         <div class="nav flex-column">
                             <a class="btn btn-primary bt-sm m-3 active" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
@@ -60,7 +60,7 @@
                                     <path
                                         d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
                                     <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
-                                </svg> Dodaj Przychóda</a>
+                                </svg> Dodaj Przychód</a>
                             <a class="btn btn-primary bt-sm m-3" href="addexpense.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
                                     class="bi bi-cart4" viewBox="0 0 16 16">
@@ -91,7 +91,7 @@
                             <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div id="menuImg" class="col-xs-12 col-sm-6 col-md-9 text-center">
+                    <div id="menuImg" class="col-12 col-sm-6 col-md-9 text-center">
                         <img src="img/biznesmen.jpg" class="img-fluid" alt="Responsive image">
                     </div>
                 </div>

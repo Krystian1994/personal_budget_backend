@@ -102,8 +102,8 @@
                 <blockquote class="blockquote d-block w-100">
                     <h2 class="text-center p-5">Wprowadź dane wydatku:</h2>
                 </blockquote>
-                <div class="row">
-                    <nav class="col-xs-12 col-sm-6 col-md-3 border-right pr-0">
+                <div class="row p-0 m-0">
+                    <nav class="col-12 col-sm-6 col-md-3 border-right">
                         <div class="nav flex-column">
                             <a class="btn btn-primary bt-sm m-3" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
@@ -154,7 +154,7 @@
                             <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div class="col-xs-12 col-sm-6 col-md-9 text-center">
+                    <div class="col-12 col-sm-6 col-md-9 text-center">
                         <form method="post">
                             <div class="d-flex align-items-center flex-column  ">
                                 <div class="input-group col-xs-12 col-sm-10 col-md-6 col-lg-5 m-1">

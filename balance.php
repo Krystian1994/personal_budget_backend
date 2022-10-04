@@ -96,8 +96,8 @@
                 <blockquote class="blockquote d-block w-100">
                     <h2 class="text-center p-5">Przeglądaj bilans z wybranego okresu:</h2>
                 </blockquote>
-                <div class="row">
-                    <nav class="col-xs-12 col-sm-6 col-md-3 border-right pr-0">
+                <div class="row p-0 m-0">
+                    <nav class="col-12 col-sm-6 col-md-3 border-right">
                         <div class="nav flex-column">
                             <a class="btn btn-primary bt-sm m-3" href="menu.php" role="button"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
@@ -148,24 +148,22 @@
                         <p id="logIn" class="text-success mt-5 p-3">Zalogowany: <?php if(isset($_SESSION['idUser'])){echo $_SESSION['userName'];} ?></p>
                         </div>
                     </nav>
-                    <div class="col-xs-12 col-sm-6 col-md-9 pl-0">
+                    <div class="col-12 col-sm-6 col-md-9">
                         <form method="post">
-                            <div class="d-flex justify-content-around flex-sm-column flex-md-row bg-light py-2">
-                                <!-- <div>
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button type="submit" class="btn btn-secondary" name="currentMonth">Bieżący miesiąc</button>
-                                        <button type="submit" class="btn btn-secondary" name="previousMonth">Poprzedni miesiąc</button>
-                                        <button type="submit" class="btn btn-secondary" name="currentYear">Bieżący rok</button>
-                                    </div>
-                                </div> -->
+                            <div class="d-flex justify-content-center flex-column justify-content-md-around flex-md-row bg-light py-2">
+                                <div class="btn-group-vertical m-1" role="group" aria-label="Basic example">
+                                    <button type="submit" class="btn btn-secondary" name="currentMonth">Bieżący miesiąc</button>
+                                    <button type="submit" class="btn btn-warning" name="previousMonth">Poprzedni miesiąc</button>
+                                    <button type="submit" class="btn btn-info" name="currentYear">Bieżący rok</button>
+                                </div>
                                 <div>
-                                    <div class="col-xs-12 col-sm-12 input-group m-1 pl-0">
+                                    <div class="col-8 col-sm-12 input-group mx-auto">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon1">Od:</span>
                                         </div>
                                         <input id="d1" type="date" <?php if(isset($_SESSION['incomeBalance'])){echo 'value="'.$_SESSION['firstBalanceDate'].'" ';} ?> class="form-control" name="firstDate" min="2022-01-01">
                                     </div>
-                                    <div class="col-xs-12 col-sm-12 input-group m-1 pl-0">
+                                    <div class="col-8 col-sm-12 input-group mx-auto">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text" id="basic-addon2">Do:</span>
                                         </div>
@@ -183,7 +181,7 @@
                             </div>
                         </form>
                         <div class="row justify-content-center">
-                            <div class="col-xs-12 col-sm-12 col-md-4 m-3">
+                            <div class="col-12 col-md-5 m-3">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
@@ -205,7 +203,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="col-xs-12 col-sm-12 col-md-4 m-3">
+                            <div class="col-12 col-md-5 m-3">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
