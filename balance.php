@@ -6,19 +6,157 @@
         exit();
     }
 
-    // if(isset($_POST['currentMonth'])){
-    //     $actualDate = date('Y-m-d');
-    //     echo strtotime($actualDate);
+    if(isset($_POST['currentMonth'])){
+        $actualDate = date('Y-m-d');
+        $currentMonthStart = date('Y-m-01');
+      
+        require_once "database.php";
+        
+        //Przychody
+        $queryIncomes = $connection -> prepare('SELECT name, SUM(amount) AS sumIncome FROM incomes_category_assigned_to_users, incomes WHERE date_of_income >= :firstDate AND date_of_income <= :secondDate AND incomes.income_category_assigned_to_user_id = incomes_category_assigned_to_users.id AND incomes.user_id = :idUser GROUP BY name ORDER BY sumIncome DESC');
+        $queryIncomes -> bindValue(':firstDate', $currentMonthStart, PDO::PARAM_STR);
+        $queryIncomes -> bindValue(':secondDate', $actualDate, PDO::PARAM_STR);
+        $queryIncomes -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+        $queryIncomes -> execute();
+        $incomesBudget = $queryIncomes -> fetchAll();
 
-    // }
+        $_SESSION['incomeBalance'] = "incomes";
 
-    // if(isset($_POST['previousMonth'])){
-    //     echo "wcisnieto previousMonth";
-    // }
+        //Wydatki 
+        $queryExpense= $connection -> prepare('SELECT name, SUM(amount) AS sumExpense FROM expenses_category_assigned_to_users, expenses WHERE date_of_expense >= :firstDate AND date_of_expense <= :secondDate AND expenses.expense_category_assigned_to_user_id = expenses_category_assigned_to_users.id AND expenses.user_id = :idUser GROUP BY name ORDER BY sumExpense DESC');
+        $queryExpense -> bindValue(':firstDate', $currentMonthStart, PDO::PARAM_STR);
+        $queryExpense -> bindValue(':secondDate', $actualDate, PDO::PARAM_STR);
+        $queryExpense -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+        $queryExpense -> execute();
+        $expensesBudget = $queryExpense -> fetchAll();
 
-    // if(isset($_POST['currentYear'])){
-    //     echo "wcisnieto  currenyear";
-    // }
+        $_SESSION['expenseBalance'] = "expenses";
+    }
+
+    if(isset($_POST['previousMonth'])){
+        $currentMonth = date('m');
+        $previousMonth = $currentMonth-1;
+
+        $year = date('Y');
+        if ( ( ($year % 4 == 0) && ($year % 100 <> 0) ) || ($year % 400 == 0) )
+        {
+            $monthsDays = array(
+                '1' => '31',
+                '2' => '29',
+                '3' => '31',
+                '4' => '30',
+                '5' => '31',
+                '6' => '30',
+                '7' => '31',
+                '8' => '31',
+                '9' => '30',
+                '10' => '31',
+                '11' => '30',
+                '12' => '31'
+            );
+            $previousMonthDays = $monthsDays[$previousMonth];
+            if($previousMonth < 10){
+                $previousMonth = '0'.$previousMonth;
+            }
+            $previousMonthEnd = $year.'-'.$previousMonth.'-'.$previousMonthDays;
+            $previousMonthStart = $year.'-'.$previousMonth.'-01';
+            
+            require_once "database.php";
+        
+            //Przychody
+            $queryIncomes = $connection -> prepare('SELECT name, SUM(amount) AS sumIncome FROM incomes_category_assigned_to_users, incomes WHERE date_of_income >= :firstDate AND date_of_income <= :secondDate AND incomes.income_category_assigned_to_user_id = incomes_category_assigned_to_users.id AND incomes.user_id = :idUser GROUP BY name ORDER BY sumIncome DESC');
+            $queryIncomes -> bindValue(':firstDate', $previousMonthStart, PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':secondDate', $previousMonthEnd, PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryIncomes -> execute();
+            $incomesBudget = $queryIncomes -> fetchAll();
+
+            $_SESSION['incomeBalance'] = "incomes";
+
+            //Wydatki 
+            $queryExpense= $connection -> prepare('SELECT name, SUM(amount) AS sumExpense FROM expenses_category_assigned_to_users, expenses WHERE date_of_expense >= :firstDate AND date_of_expense <= :secondDate AND expenses.expense_category_assigned_to_user_id = expenses_category_assigned_to_users.id AND expenses.user_id = :idUser GROUP BY name ORDER BY sumExpense DESC');
+            $queryExpense -> bindValue(':firstDate', $previousMonthStart, PDO::PARAM_STR);
+            $queryExpense -> bindValue(':secondDate', $previousMonthEnd, PDO::PARAM_STR);
+            $queryExpense -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryExpense -> execute();
+            $expensesBudget = $queryExpense -> fetchAll();
+
+            $_SESSION['expenseBalance'] = "expenses";
+        }
+        else
+        {
+            $monthsDays = array(
+                '1' => '31',
+                '2' => '28',
+                '3' => '31',
+                '4' => '30',
+                '5' => '31',
+                '6' => '30',
+                '7' => '31',
+                '8' => '31',
+                '9' => '30',
+                '10' => '31',
+                '11' => '30',
+                '12' => '31'
+            );
+            $previousMonthDays = $monthsDays[$previousMonth];
+            if($previousMonth < 10){
+                $previousMonth = '0'.$previousMonth;
+            }
+            $previousMonthEnd = $year.'-'.$previousMonth.'-'.$previousMonthDays;
+            $previousMonthStart = $year.'-'.$previousMonth.'-01';
+            
+            require_once "database.php";
+        
+            //Przychody
+            $queryIncomes = $connection -> prepare('SELECT name, SUM(amount) AS sumIncome FROM incomes_category_assigned_to_users, incomes WHERE date_of_income >= :firstDate AND date_of_income <= :secondDate AND incomes.income_category_assigned_to_user_id = incomes_category_assigned_to_users.id AND incomes.user_id = :idUser GROUP BY name ORDER BY sumIncome DESC');
+            $queryIncomes -> bindValue(':firstDate', $previousMonthStart, PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':secondDate', $previousMonthEnd, PDO::PARAM_STR);
+            $queryIncomes -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryIncomes -> execute();
+            $incomesBudget = $queryIncomes -> fetchAll();
+
+            $_SESSION['incomeBalance'] = "incomes";
+
+            //Wydatki 
+            $queryExpense= $connection -> prepare('SELECT name, SUM(amount) AS sumExpense FROM expenses_category_assigned_to_users, expenses WHERE date_of_expense >= :firstDate AND date_of_expense <= :secondDate AND expenses.expense_category_assigned_to_user_id = expenses_category_assigned_to_users.id AND expenses.user_id = :idUser GROUP BY name ORDER BY sumExpense DESC');
+            $queryExpense -> bindValue(':firstDate', $previousMonthStart, PDO::PARAM_STR);
+            $queryExpense -> bindValue(':secondDate', $previousMonthEnd, PDO::PARAM_STR);
+            $queryExpense -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+            $queryExpense -> execute();
+            $expensesBudget = $queryExpense -> fetchAll();
+
+            $_SESSION['expenseBalance'] = "expenses";
+        }
+    }
+
+    if(isset($_POST['currentYear'])){
+        $actualDate = date('Y-m-d');
+        $currentYearStart = date('Y-01-01');
+      
+        require_once "database.php";
+        
+        //Przychody
+        $queryIncomes = $connection -> prepare('SELECT name, SUM(amount) AS sumIncome FROM incomes_category_assigned_to_users, incomes WHERE date_of_income >= :firstDate AND date_of_income <= :secondDate AND incomes.income_category_assigned_to_user_id = incomes_category_assigned_to_users.id AND incomes.user_id = :idUser GROUP BY name ORDER BY sumIncome DESC');
+        $queryIncomes -> bindValue(':firstDate', $currentYearStart, PDO::PARAM_STR);
+        $queryIncomes -> bindValue(':secondDate', $actualDate, PDO::PARAM_STR);
+        $queryIncomes -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+        $queryIncomes -> execute();
+        $incomesBudget = $queryIncomes -> fetchAll();
+
+        $_SESSION['incomeBalance'] = "incomes";
+
+        //Wydatki 
+        $queryExpense= $connection -> prepare('SELECT name, SUM(amount) AS sumExpense FROM expenses_category_assigned_to_users, expenses WHERE date_of_expense >= :firstDate AND date_of_expense <= :secondDate AND expenses.expense_category_assigned_to_user_id = expenses_category_assigned_to_users.id AND expenses.user_id = :idUser GROUP BY name ORDER BY sumExpense DESC');
+        $queryExpense -> bindValue(':firstDate', $currentYearStart, PDO::PARAM_STR);
+        $queryExpense -> bindValue(':secondDate', $actualDate, PDO::PARAM_STR);
+        $queryExpense -> bindValue(':idUser', $_SESSION['idUser'], PDO::PARAM_STR);
+        $queryExpense -> execute();
+        $expensesBudget = $queryExpense -> fetchAll();
+
+        $_SESSION['expenseBalance'] = "expenses";
+    }
+
     $validation = true;
 
     if(isset($_POST['submit']) && isset($_POST['firstDate']) && isset($_POST['secondDate'])){
@@ -57,8 +195,7 @@
             $expensesBudget = $queryExpense -> fetchAll();
 
             $_SESSION['expenseBalance'] = "expenses";
-        }
-        
+        }  
     }
 
 ?>
